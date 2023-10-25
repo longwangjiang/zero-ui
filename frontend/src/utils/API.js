@@ -5,7 +5,11 @@ const baseURL = "/api/";
 export default axios.create({
   baseURL: baseURL,
   responseType: "json",
-  headers: {
-    Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-  },
+  withCredentials: "true",
+  headers:
+    localStorage.getItem("disableAuth") === "true"
+      ? {}
+      : {
+          Authorization: `token ${JSON.parse(localStorage.getItem("token"))}`,
+        },
 });

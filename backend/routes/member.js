@@ -1,13 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router({ mergeParams: true });
 
-const auth = require("../services/auth");
-const member = require("../services/member");
+import * as auth from "../services/auth.js";
+import * as member from "../services/member.js";
 
-const api = require("../utils/controller-api");
+import { api } from "../utils/controller-api.js";
 
 // get all members
 router.get("/", auth.isAuthorized, async function (req, res) {
+  // @ts-ignore
   const nwid = req.params.nwid;
   api
     .get("controller/network/" + nwid + "/member")
@@ -16,13 +17,14 @@ router.get("/", auth.isAuthorized, async function (req, res) {
       const data = await member.getMembersData(nwid, mids);
       res.send(data);
     })
-    .catch(function () {
-      res.status(404).send({ error: "Network not found" });
+    .catch(function (err) {
+      res.status(404).send({ error: `Network not found ${err}` });
     });
 });
 
 // get member
 router.get("/:mid", auth.isAuthorized, async function (req, res) {
+  // @ts-ignore
   const nwid = req.params.nwid;
   const mid = req.params.mid;
   const data = await member.getMembersData(nwid, [mid]);
@@ -35,6 +37,7 @@ router.get("/:mid", auth.isAuthorized, async function (req, res) {
 
 // update member
 router.post("/:mid", auth.isAuthorized, async function (req, res) {
+  // @ts-ignore
   const nwid = req.params.nwid;
   const mid = req.params.mid;
   member.updateMemberAdditionalData(nwid, mid, req.body);
@@ -56,6 +59,7 @@ router.post("/:mid", auth.isAuthorized, async function (req, res) {
 
 // delete member
 router.delete("/:mid", auth.isAuthorized, async function (req, res) {
+  // @ts-ignore
   const nwid = req.params.nwid;
   const mid = req.params.mid;
   member.deleteMemberAdditionalData(nwid, mid);
@@ -82,4 +86,4 @@ router.delete("/:mid", auth.isAuthorized, async function (req, res) {
     });
 });
 
-module.exports = router;
+export default router;

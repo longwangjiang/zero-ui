@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.8](https://github.com/dec0dOS/zero-ui/compare/v1.5.7...v1.5.8) (2023-10-04)
+
+### [1.5.7](https://github.com/dec0dOS/zero-ui/compare/v1.5.6...v1.5.7) (2023-10-04)
+
+### [1.5.6](https://github.com/dec0dOS/zero-ui/compare/v1.5.5...v1.5.6) (2023-10-04)
+
+### [1.5.5](https://github.com/dec0dOS/zero-ui/compare/v1.5.4...v1.5.5) (2023-10-04)
+
+### [1.5.4](https://github.com/dec0dOS/zero-ui/compare/v1.5.3...v1.5.4) (2023-10-04)
+
+### [1.5.3](https://github.com/dec0dOS/zero-ui/compare/v1.5.2...v1.5.3) (2023-10-04)
+
+### [1.5.2](https://github.com/dec0dOS/zero-ui/compare/v1.5.1...v1.5.2) (2023-10-04)
+
+### Bug Fixes
+
+- fix network member api resp handling ([856682b](https://github.com/dec0dOS/zero-ui/commit/856682bad1ccd46970681e45bea8a992043c38f4))
+- ping peer response handling ([db8f497](https://github.com/dec0dOS/zero-ui/commit/db8f4979e65d23d93de99ffa428c9b9a3d3fd952))
+- revert fix for 1.12.0 ([5d041f6](https://github.com/dec0dOS/zero-ui/commit/5d041f6db63345950cb5782d586c71e0402b7ce7))
+
+### [1.5.1](https://github.com/dec0dOS/zero-ui/compare/v1.5.0...v1.5.1) (2022-10-09)
+
+### Bug Fixes
+
+- **backend/app.js:** fix internal error handler ([15e4051](https://github.com/dec0dOS/zero-ui/commit/15e405162590b2e79dfc32751625f5425613bc52))
+- **backend/services/member.js:** correctly delete members with unset additionalData ([450a6ad](https://github.com/dec0dOS/zero-ui/commit/450a6ad19414723ce00c48caba98743143a3041f))
+
+## [1.5.0](https://github.com/dec0dOS/zero-ui/compare/v1.4.1...v1.5.0) (2022-08-25)
+
+### Features
+
+- **backend:** add cron and ping members ([d3fdac6](https://github.com/dec0dOS/zero-ui/commit/d3fdac61bdd95c7ff42e7db373cd3973d42ca8ce))
+- last online ([40f98cc](https://github.com/dec0dOS/zero-ui/commit/40f98cc9df322f2b8b4c4a8baed96c96fd2c56d7))
+
+### [1.4.1](https://github.com/dec0dOS/zero-ui/compare/v1.4.0...v1.4.1) (2022-06-22)
+
+## [1.4.0](https://github.com/dec0dOS/zero-ui/compare/v1.3.2...v1.4.0) (2022-06-18)
+
+### Features
+
+- support http basic auth ([2396e97](https://github.com/dec0dOS/zero-ui/commit/2396e973dc4e40f247cb5fef75d0403ccf0a285a))
+
+### [1.3.2](https://github.com/dec0dOS/zero-ui/compare/v1.3.1...v1.3.2) (2022-06-18)
+
+### Bug Fixes
+
+- better zt controller error handling ([d7f2e15](https://github.com/dec0dOS/zero-ui/commit/d7f2e153286f9e1dacf4d9fa993321fd6fbc3836))
+- correct conditional for enabling bearer token ([f30dec6](https://github.com/dec0dOS/zero-ui/commit/f30dec6eacfe0d2ac0031861b4f22f34dbab32c7))
+- disable authentication properly ([75933d7](https://github.com/dec0dOS/zero-ui/commit/75933d7e59838f7c8728ca08cf39659f24a6cac6))
+- simplify code and check login status on home page load ([ddb3f44](https://github.com/dec0dOS/zero-ui/commit/ddb3f442f85991db4fa0721f0d7c2b004a9ea12d))
+- stop redundant fetching /auth/login ([ce9f794](https://github.com/dec0dOS/zero-ui/commit/ce9f7943c04d117b0ace3025cd9f84d7b14cf5f3))
+- update disableAuth in localStorage if server config changes ([036e577](https://github.com/dec0dOS/zero-ui/commit/036e5779ba319a63c9d749c32fcbd5452d2bd2d2))
+
 ### [1.3.1](https://github.com/dec0dOS/zero-ui/compare/v1.3.0...v1.3.1) (2022-06-12)
 
 ## [1.3.0](https://github.com/dec0dOS/zero-ui/compare/v1.2.2...v1.3.0) (2022-05-24)

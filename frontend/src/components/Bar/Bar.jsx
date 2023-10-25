@@ -19,8 +19,11 @@ import MenuIcon from "@material-ui/icons/Menu";
 
 import LogIn from "components/LogIn";
 
+import { useTranslation } from "react-i18next";
+
 function Bar() {
   const [loggedIn, setLoggedIn] = useLocalStorage("loggedIn", false);
+  const [disabledAuth] = useLocalStorage("disableAuth", false);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const history = useHistory();
@@ -40,17 +43,23 @@ function Bar() {
     history.go(0);
   };
 
+  const { t, i18n } = useTranslation();
+
   const menuItems = [
     // TODO: add settings page
-    // {
-    //   name: "Settings",
-    //   to: "/settings",
-    // },
     {
-      name: "Log out",
-      divide: true,
-      onClick: onLogOutClick,
+      name: t("settings"),
+      to: "/settings",
     },
+    ...(!disabledAuth
+      ? [
+          {
+            name: t("logOut"),
+            divide: true,
+            onClick: onLogOutClick,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -72,8 +81,7 @@ function Bar() {
             </Link>
           </Typography>
         </Box>
-
-        {loggedIn && (
+        {loggedIn && menuItems.length > 0 && (
           <>
             <Button color="inherit" onClick={openMenu}>
               <MenuIcon></MenuIcon>
@@ -86,7 +94,7 @@ function Bar() {
             >
               {menuItems.map((menuItem, index) => {
                 if (
-                  menuItem.hasOwnProperty("condition") &&
+                  Object.prototype.hasOwnProperty.call(menuItem, "condition") &&
                   !menuItem.condition
                 ) {
                   return null;
@@ -111,7 +119,6 @@ function Bar() {
                       key={index}
                       onClick={() => {
                         closeMenu();
-
                         menuItem.onClick();
                       }}
                     >

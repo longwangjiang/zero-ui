@@ -13,9 +13,13 @@ import {
 
 import axios from "axios";
 
+import { useTranslation } from "react-i18next";
+
 function LogInUser() {
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [error, setError] = useState("");
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -65,17 +69,20 @@ function LogInUser() {
       .catch(function (error) {
         setPassword("");
         setSnackbarOpen(true);
-        console.error(error);
+        setError(error.response.data.error);
+        // console.error(error.response.data.error);
       });
   };
+
+  const { t, i18n } = useTranslation();
 
   return (
     <>
       <Button onClick={handleClickOpen} color="primary" variant="contained">
-        Log In
+        {t("logIn")}
       </Button>
       <Dialog open={open} onClose={handleClose} onKeyPress={handleKeyPress}>
-        <DialogTitle>Log In</DialogTitle>
+        <DialogTitle>{t("logIn")}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -84,7 +91,7 @@ function LogInUser() {
               setUsername(e.target.value);
             }}
             margin="dense"
-            label="username"
+            label={t("username")}
             type="username"
             fullWidth
           />
@@ -94,17 +101,17 @@ function LogInUser() {
               setPassword(e.target.value);
             }}
             margin="dense"
-            label="password"
+            label={t("password")}
             type="password"
             fullWidth
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={LogIn} color="primary">
-            Log In
+            {t("logIn")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -114,7 +121,7 @@ function LogInUser() {
           vertical: "top",
           horizontal: "center",
         }}
-        message="Invalid username or password"
+        message={t(error)}
       />
     </>
   );

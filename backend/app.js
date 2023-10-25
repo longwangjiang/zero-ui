@@ -1,33 +1,44 @@
-const express = require("express");
-const path = require("path");
-const logger = require("morgan");
-const compression = require("compression");
-const bearerToken = require("express-bearer-token");
-const helmet = require("helmet");
+import path from "path";
+import * as url from "url";
+import express from "express";
+import logger from "morgan";
+import compression from "compression";
+import bearerToken from "express-bearer-token";
+import helmet from "helmet";
+import { Cron } from "croner";
 
-const db = require("./utils/db");
-const initAdmin = require("./utils/init-admin");
+import { db } from "./utils/db.js";
+import { initAdmin } from "./utils/init-admin.js";
+import { pingAll } from "./utils/ping.js";
 
-const authRoutes = require("./routes/auth");
-const networkRoutes = require("./routes/network");
-const memberRoutes = require("./routes/member");
-const controllerRoutes = require("./routes/controller");
+import authRoutes from "./routes/auth.js";
+import networkRoutes from "./routes/network.js";
+import memberRoutes from "./routes/member.js";
+import controllerRoutes from "./routes/controller.js";
 
 const app = express();
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(
-  bearerToken({
-    headerKey: "Bearer",
-  })
-);
+if (process.env.ZU_DISABLE_AUTH !== "true") {
+  app.use(
+    bearerToken({
+      headerKey: "token",
+    })
+  );
+}
+
+if (process.env.NODE_ENV === "production") {
+  console.debug = function () {};
+}
 
 if (
   process.env.NODE_ENV === "production" &&
   process.env.ZU_SECURE_HEADERS !== "false"
 ) {
+  // @ts-ignore
   app.use(helmet());
 }
 
@@ -52,6 +63,18 @@ initAdmin().then(function (admin) {
   db.defaults({ users: [admin], networks: [] }).write();
 });
 
+if (process.env.ZU_LAST_SEEN_FETCH !== "false") {
+  let schedule = process.env.ZU_LAST_SEEN_SCHEDULE || "*/5 * * * *";
+  Cron(schedule, () => {
+    console.debug("Running scheduled job");
+    const networks = db.get("networks").value();
+    networks.forEach(async (network) => {
+      console.debug("Processing network " + network.id);
+      await pingAll(network);
+    });
+  });
+}
+
 const routerAPI = express.Router();
 const routerController = express.Router();
 
@@ -67,9 +90,9 @@ app.use("/controller", routerController); // other controller-specific routes
 app.get("*", async function (req, res) {
   res.status(404).json({ error: "404 Not found" });
 });
-app.use(async function (err, req, res) {
-  console.error(err.stack); // TODO: replace with production logger
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
   res.status(500).json({ error: "500 Internal server error" });
 });
 
-module.exports = app;
+export default app;

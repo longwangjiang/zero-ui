@@ -1,9 +1,9 @@
-const _ = require("lodash");
-const axios = require("axios");
+import _ from "lodash";
+import axios from "axios";
 
-const api = require("../utils/controller-api");
-const db = require("../utils/db");
-const getZTAddress = require("../utils/zt-address");
+import { api } from "../utils/controller-api.js";
+import { db } from "../utils/db.js";
+import { getZTAddress } from "../utils/zt-address.js";
 
 let ZT_ADDRESS = null;
 getZTAddress().then(function (address) {
@@ -25,25 +25,35 @@ async function getMemberAdditionalData(data) {
   network.defaults({ members: [] }).get("members").write();
   // END MIGRATION SECTION
 
-  const additionalData = db
+  const member = db
     .get("networks")
     .find({ id: data.nwid })
     .get("members")
-    .find({ id: data.id })
-    .get("additionalConfig")
-    .value();
+    .find({ id: data.id });
+
+  const additionalData = member.get("additionalConfig").value() || {};
+  const lastOnline = member.get("lastOnline").value() || 0;
 
   const peer = await getPeer(data.id);
   let peerData = {};
-  if (peer) {
+  if (peer && !_.isEmpty(peer)) {
     peerData.latency = peer.latency;
     if (peer.latency !== -1) peerData.online = 1;
     if (peer.latency == -1) peerData.online = 2;
     peerData.clientVersion = peer.version;
-    if (peer.paths[0]) {
-      peerData.lastOnline = peer.paths[0].lastReceive;
-      peerData.physicalAddress = peer.paths[0].address.split("/")[0];
-      peerData.physicalPort = peer.paths[0].address.split("/")[1];
+    if (peer.paths.length > 0) {
+      let path = peer.paths.filter((p) => {
+        let ret = p.active && !p.expired;
+        if (typeof p.preferred !== "undefined") {
+          ret = ret && p.preferred;
+        }
+        return ret;
+      });
+      if (path.length > 0) {
+        peerData.lastOnline = path[0].lastReceive;
+        peerData.physicalAddress = path[0].address.split("/")[0];
+        peerData.physicalPort = path[0].address.split("/")[1];
+      }
     }
   } else {
     peerData.online = 0;
@@ -57,11 +67,12 @@ async function getMemberAdditionalData(data) {
 
   return {
     id: data.nwid + "-" + data.id,
-    type: "Member",
-    clock: Math.floor(new Date().getTime() / 1000),
+    clock: new Date().getTime(),
     networkId: data.nwid,
     nodeId: data.id,
     controllerId: ZT_ADDRESS,
+    // @ts-ignore
+    lastOnline: lastOnline,
     ...additionalData,
     ...peerData,
     config: data,
@@ -75,12 +86,12 @@ async function filterDeleted(nwid, mid) {
     .get("members")
     .find({ id: mid });
 
-  if (!member.get("deleted").value()) return mid;
+  let deleted = member.get("deleted").value() || false;
+  if (!deleted) return mid;
   else return;
 }
 
-exports.getMembersData = getMembersData;
-async function getMembersData(nwid, mids) {
+export async function getMembersData(nwid, mids) {
   const prefix = "/controller/network/" + nwid + "/member/";
   const filtered = (
     await Promise.all(mids.map(async (mid) => await filterDeleted(nwid, mid)))
@@ -94,7 +105,7 @@ async function getMembersData(nwid, mids) {
         return res;
       })
     )
-    .catch(function () {
+    .catch(function (err) {
       return [];
     });
 
@@ -107,8 +118,7 @@ async function getMembersData(nwid, mids) {
   return data;
 }
 
-exports.updateMemberAdditionalData = updateMemberAdditionalData;
-async function updateMemberAdditionalData(nwid, mid, data) {
+export async function updateMemberAdditionalData(nwid, mid, data) {
   if (data.config && data.config.authorized) {
     db.get("networks")
       .filter({ id: nwid })
@@ -160,8 +170,7 @@ async function updateMemberAdditionalData(nwid, mid, data) {
   }
 }
 
-exports.deleteMemberAdditionalData = deleteMemberAdditionalData;
-async function deleteMemberAdditionalData(nwid, mid) {
+export async function deleteMemberAdditionalData(nwid, mid) {
   // ZT controller bug
   /* db.get("networks")
        .find({ id: nwid })
@@ -169,6 +178,8 @@ async function deleteMemberAdditionalData(nwid, mid) {
        .remove({ id: mid })
        .write();
   */
+
+  await updateMemberAdditionalData(nwid, mid, {});
 
   db.get("networks")
     .filter({ id: nwid })
